@@ -165,7 +165,7 @@ df_fight %>%
        fill = '') +
   theme(legend.position = 'bottom')
 
-# ggsave('fight perceptoins.jpg',
+# ggsave('fight perceptions.jpg',
 #        device = 'jpeg',
 #        units = 'cm')
 
