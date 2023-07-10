@@ -105,10 +105,8 @@ df_fight %>%
 
 
 ## model
-(mod_fight <- aov_4(Fight ~ scm_size * trap_size
-                    + (scm_size * trap_size | id),
-                    anova_table = list(es = 'pes'),
-                    data = df_fight))
+(mod_fight <- aov_4(Fight ~ scm_size * trap_size + (scm_size * trap_size | id),
+                    anova_table = list(es = 'pes'), data = df_fight))
 
 ## descriptives
 # trap size
@@ -297,6 +295,118 @@ df_mate %>%
 
 
 
+## plot only trap x scm effects
+trap_scm_g <- df_mate %>%
+  group_by(trap_size, scm_size) %>%
+  get_summary_stats(response, type = 'full')
+
+trap_scm_g_part <- df_mate %>%
+  group_by(id, trap_size, scm_size) %>%
+  get_summary_stats(response, type = 'full')
+
+trap_x_scm <- trap_scm_g_part %>%
+  ggplot(aes(scm_size, mean, fill = trap_size)) +
+  geom_violin(color = plot_colors[3],
+              alpha = .8,
+              position = position_dodge(.9),
+              bw = .35) +
+  geom_point(color = plot_colors[3],
+             alpha = .2,
+             size = .75,
+             shape = 4,
+             position = position_jitterdodge(.15, .15, .9)) +
+  geom_point(data = trap_scm_g,
+             aes(scm_size, mean),
+             color = plot_colors[3],
+             alpha = .75,
+             shape = 7,
+             size = 3,
+             position = position_dodge(.9)) +
+  geom_errorbar(data = trap_scm_g,
+                aes(scm_size, mean, ymin = mean - ci, ymax = mean + ci),
+                width = .25,
+                alpha = .75,
+                color = plot_colors[3],
+                position = position_dodge(.9)) +
+  theme_bw() +
+  # facet_wrap(~ motive) +
+  scale_fill_manual(values = c(plot_colors[1],
+                               plot_colors[2]),
+                    labels = c('Large Trapezii',
+                               'Small Trapezii')) +
+  scale_y_continuous(breaks = seq(1, 7, 1)) +
+  scale_x_discrete(labels = c('Large SCM',
+                              'Small SCM')) +
+  labs(x = '',
+       y = 'Perception of Mate Preference',
+       fill = '') +
+  theme(legend.position = 'bottom')
+trap_x_scm
+
+
+## plot only trap x motive effects
+trap_motive_g <- df_mate %>%
+  group_by(trap_size, motive) %>%
+  get_summary_stats(response, type = 'full')
+
+trap_motive_g_part <- df_mate %>%
+  group_by(id, trap_size, motive) %>%
+  get_summary_stats(response, type = 'full')
+
+trap_x_motive <- trap_motive_g_part %>%
+  ggplot(aes(motive, mean, fill = trap_size)) +
+  geom_violin(color = plot_colors[3],
+              alpha = .8,
+              position = position_dodge(.9),
+              bw = .35) +
+  geom_point(color = plot_colors[3],
+             alpha = .2,
+             size = .75,
+             shape = 4,
+             position = position_jitterdodge(.15, .15, .9)) +
+  geom_point(data = trap_motive_g,
+             aes(motive, mean),
+             color = plot_colors[3],
+             alpha = .75,
+             shape = 7,
+             size = 3,
+             position = position_dodge(.9)) +
+  geom_errorbar(data = trap_motive_g,
+                aes(motive, mean, ymin = mean - ci, ymax = mean + ci),
+                width = .25,
+                alpha = .75,
+                color = plot_colors[3],
+                position = position_dodge(.9)) +
+  theme_bw() +
+  # facet_wrap(~ motive) +
+  scale_fill_manual(values = c(plot_colors[1],
+                               plot_colors[2]),
+                    labels = c('Large Trapezii',
+                               'Small Trapezii')) +
+  scale_y_continuous(breaks = seq(1, 7, 1)) +
+  scale_x_discrete(labels = c('Long-Term Mating',
+                              'Short-Term Mating')) +
+  labs(x = '',
+       y = 'Perception of Mate Preference',
+       fill = '') +
+  theme(legend.position = 'bottom')
+trap_x_motive
+
+
+ggarrange(
+  trap_x_scm,
+  trap_x_motive,
+  labels = c('A', 'B'),
+  common.legend = T,
+  legend = 'bottom'
+)
+
+# ggsave('mate preference - 2-way.jpg',
+#        device = 'jpeg',
+#        units = 'cm')
+
+
+
 ### explore parenting ability
 df_parent %>%
   ggplot(aes(response, fill = trap_size)) +
@@ -396,5 +506,58 @@ df_parent %>%
   theme(legend.position = 'bottom')
 
 # ggsave('parent preference.jpg',
+#        device = 'jpeg',
+#        units = 'cm')
+
+
+# plot two-way interaction effect
+trap_parent_g <- df_parent %>%
+  group_by(trap_size, motive) %>%
+  get_summary_stats(response, type = 'full')
+trap_parent_g
+
+trap_parent_g_part <- df_parent %>%
+  group_by(id, trap_size, motive) %>%
+  get_summary_stats(response, type = 'full')
+
+trap_parent_g_part %>%
+  ggplot(aes(motive, mean, fill = trap_size)) +
+  geom_violin(color = plot_colors[3],
+              alpha = .8,
+              position = position_dodge(.9),
+              bw = .35) +
+  geom_point(color = plot_colors[3],
+             alpha = .2,
+             size = .75,
+             shape = 4,
+             position = position_jitterdodge(.15, .15, .9)) +
+  geom_point(data = trap_parent_g,
+             aes(motive, mean),
+             color = plot_colors[3],
+             alpha = .75,
+             shape = 7,
+             size = 3,
+             position = position_dodge(.9)) +
+  geom_errorbar(data = trap_parent_g,
+                aes(motive, mean, ymin = mean - ci, ymax = mean + ci),
+                width = .25,
+                alpha = .75,
+                color = plot_colors[3],
+                position = position_dodge(.9)) +
+  theme_bw() +
+  # facet_wrap(~ motive, labeller = labeller(motive = parent_labs)) +
+  scale_fill_manual(values = c(plot_colors[1],
+                               plot_colors[2]),
+                    labels = c('Large Trapezii',
+                               'Small Trapezii')) +
+  scale_y_continuous(breaks = seq(1, 7, 1)) +
+  scale_x_discrete(labels = c('Nurturing\nParenting Style',
+                              'Protection\nParenting Style')) +
+  labs(x = '',
+       y = 'Perception of Parent Preference',
+       fill = '') +
+  theme(legend.position = 'bottom')
+
+# ggsave('parent preference - 2-way.jpg',
 #        device = 'jpeg',
 #        units = 'cm')
